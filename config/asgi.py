@@ -1,5 +1,5 @@
 """
-ASGI config for [YOUR PROJECT].
+ASGI config for ROOM.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

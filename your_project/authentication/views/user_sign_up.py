@@ -9,8 +9,8 @@ from drf_yasg import openapi
 
 from common.response import create_response, create_response_dict
 
-from your_project.users.selectors import user_get_login_data, user_get_by_email
-from your_project.users.services import user_create
+from room.users.selectors import user_get_login_data, user_get_by_email
+from room.users.services import user_create
 
 from ..services import user_create_access_token
 
