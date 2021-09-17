@@ -1,4 +1,4 @@
-"""room URL Configuration
+"""dots_connect_deta URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -26,9 +26,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="room API",
+        title="dots_connect_deta API",
         default_version="v1.0.0",
-        description="room is a ...",  # TODO
+        description="dots_connect_deta is a ...",  # TODO
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(url="https://github.com/Sinha-Ujjawal"),
         # license=openapi.License(name="MIT License"), TODO
@@ -49,7 +49,7 @@ def path_with_base(base_url: str):
     return _inner
 
 
-base_path = path_with_base("room")
+base_path = path_with_base("dots_connect_deta")
 
 
 urlpatterns = [
@@ -64,9 +64,9 @@ urlpatterns = [
         name="schema-redoc",
     ),
     base_path("admin/", admin.site.urls),
-    base_path("auth/", include("room.authentication.urls")),
-    base_path("users/", include("room.users.urls")),
-    base_path("chat/", include("room.chat.urls")),
+    base_path("auth/", include("dots_connect_deta.authentication.urls")),
+    base_path("users/", include("dots_connect_deta.users.urls")),
+    base_path("chat/", include("dots_connect_deta.chat.urls")),
 ]
 
 if settings.DEBUG:

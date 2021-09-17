@@ -1,6 +1,6 @@
 ## Django-Room
 
-A basic websocket backend to create a private room in django
+A basic websocket backend to create a private dots_connect_deta in django
 
 ## Copyrights & License
 

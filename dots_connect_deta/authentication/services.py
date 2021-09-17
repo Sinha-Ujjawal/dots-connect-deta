@@ -1,5 +1,5 @@
 from rest_framework_simplejwt.tokens import RefreshToken
-from room.users.models import User
+from dots_connect_deta.users.models import User
 
 
 def user_create_access_token(*, user: User):

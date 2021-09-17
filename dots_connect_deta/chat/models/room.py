@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from common.models import BaseModel
-from room.users.models import User
+from dots_connect_deta.users.models import User
 
 
 class Room(BaseModel):

@@ -1,5 +1,5 @@
 """
-ASGI config for ROOM.
+ASGI config for DOTS-CONNECT-DETA.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,13 +11,13 @@ import os
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
-import room.chat.routing
+import dots_connect_deta.chat.routing
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings..base")
 
 application = ProtocolTypeRouter(
     application_mapping={
         "http": get_asgi_application(),
-        "websocket": URLRouter(room.chat.routing.websocket_urlpatterns),
+        "websocket": URLRouter(dots_connect_deta.chat.routing.websocket_urlpatterns),
     }
 )

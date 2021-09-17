@@ -1,5 +1,5 @@
 """
-WSGI config for ROOM.
+WSGI config for DOTS-CONNECT-DETA.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

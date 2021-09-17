@@ -1,4 +1,4 @@
-from room.users.models import User
+from dots_connect_deta.users.models import User
 from .models import Room
 
 
