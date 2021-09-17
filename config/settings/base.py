@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "corsheaders",
     "drf_yasg",
+    "channels",
 ]
 
 LOCAL_APPS = [
@@ -72,7 +73,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -171,3 +172,4 @@ SIMPLE_JWT = {
 from .cors import *  # noqa
 from .sessions import *  # noqa
 from .swagger import *  # noqa
+from .channels import *  # noqa
