@@ -66,6 +66,7 @@ urlpatterns = [
     base_path("admin/", admin.site.urls),
     base_path("auth/", include("room.authentication.urls")),
     base_path("users/", include("room.users.urls")),
+    base_path("chat/", include("room.chat.urls")),
 ]
 
 if settings.DEBUG:

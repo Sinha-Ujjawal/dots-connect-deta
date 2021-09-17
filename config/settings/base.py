@@ -40,6 +40,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "room.users",
     "room.authentication",
+    "room.chat",
     # local apps here
 ]
 
