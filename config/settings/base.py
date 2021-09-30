@@ -41,7 +41,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "dots_connect_deta.users",
     "dots_connect_deta.authentication",
-    "dots_connect_deta.chat",
+    "dots_connect_deta.board",
     # local apps here
 ]
 

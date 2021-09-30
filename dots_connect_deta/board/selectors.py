@@ -1,11 +1,16 @@
 from typing import List, Optional
 import uuid
 from dots_connect_deta.users.models import User
+from django.db.models import Q
 from .models import Room
 
 
 def room_get_data(*, room: Room):
-    return {"roomId": room.room_id, "name": room.name}
+    return {
+        "roomId": room.room_id,
+        "name": room.name,
+        "host": room.host.id if room.host else None,
+    }
 
 
 def room_get_by_id(*, room_id: uuid.UUID) -> Optional[Room]:
@@ -16,4 +21,6 @@ def room_get_by_id(*, room_id: uuid.UUID) -> Optional[Room]:
 
 
 def room_get_rooms(*, user: User) -> List[Room]:
-    return Room.objects.filter(host=user).all()
+    if user.is_anonymous:
+        user = None
+    return Room.objects.filter(Q(host=user) | Q(host__isnull=True)).all()

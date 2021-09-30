@@ -66,7 +66,7 @@ urlpatterns = [
     base_path("admin/", admin.site.urls),
     base_path("auth/", include("dots_connect_deta.authentication.urls")),
     base_path("users/", include("dots_connect_deta.users.urls")),
-    base_path("chat/", include("dots_connect_deta.chat.urls")),
+    base_path("board/", include("dots_connect_deta.board.urls")),
 ]
 
 if settings.DEBUG:

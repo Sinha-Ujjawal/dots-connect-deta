@@ -1,5 +1,4 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -21,8 +20,6 @@ example_responses = {
 
 
 class ListRooms(APIView):
-    permission_classes = (IsAuthenticated,)
-
     @swagger_auto_schema(
         operation_description="List all the rooms created by a user",
         responses=example_responses,
