@@ -173,3 +173,4 @@ from .cors import *  # noqa
 from .sessions import *  # noqa
 from .swagger import *  # noqa
 from .channels import *  # noqa
+from .logging import *  # noqa

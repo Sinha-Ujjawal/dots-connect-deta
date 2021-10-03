@@ -1,4 +1,5 @@
 from typing import List, Optional, Set
+import logging
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 import uuid
@@ -20,7 +21,7 @@ class GameIdResponse:
     me: bool
 
 
-class ChatConsumer(AsyncJsonWebsocketConsumer):
+class GameConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         route_kwargs = self.scope["url_route"]["kwargs"]
 
@@ -86,7 +87,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, json_data):
         message = json_data["message"]
-
+        logging.info(f"Received: {message}")
         # send message to the group
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -102,6 +103,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(content={"message": message})
 
     async def game_ids_broadcast_signal(self):
+        logging.info("Broadcasting Game Ids")
         await self.channel_layer.group_send(
             self.room_group_name,
             {
