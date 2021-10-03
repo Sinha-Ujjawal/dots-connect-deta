@@ -8,7 +8,6 @@ from .models import Room
 def room_get_data(*, room: Room):
     return {
         "roomId": room.room_id,
-        "name": room.name,
         "host": room.host.id if room.host else None,
     }
 

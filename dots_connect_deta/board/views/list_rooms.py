@@ -12,7 +12,11 @@ example_responses = {
         description="List of rooms",
         examples={
             "application/json": create_response_dict(
-                data=[{"roomId": 4, "name": "xyz"}]
+                data=[
+                    {"roomId": "...32232xcxxcssss-aasxscsc-scssss...", "host": 1},
+                    {"roomId": "...xss2xcxxcsssdsdsds-aasxscsc-scssss...", "host": 2},
+                    {"roomId": "...sdsdxcxxcssdsaqw-aasxscsc-scssss...", "host": None},
+                ]
             )
         },
     )
