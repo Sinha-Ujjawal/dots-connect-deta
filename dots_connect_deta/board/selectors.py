@@ -1,14 +1,15 @@
-from typing import List, Optional
+from typing import Optional
 import uuid
-from dots_connect_deta.users.models import User
+from django.db.models.query import QuerySet
 from django.db.models import Q
-from .models import Room
+from dots_connect_deta.users.models import User
+from .models import Room, RoomUser
 
 
 def room_get_data(*, room: Room):
     return {
-        "roomId": room.room_id,
-        "host": room.host.id if room.host else None,
+        "roomId": room.room_id.hex,
+        "host": room.host_id,
     }
 
 
@@ -19,7 +20,19 @@ def room_get_by_id(*, room_id: uuid.UUID) -> Optional[Room]:
         return None
 
 
-def room_get_rooms(*, user: User) -> List[Room]:
+def room_get_rooms(*, user: User) -> QuerySet[Room]:
     if user.is_anonymous:
         user = None
-    return Room.objects.filter(Q(host=user) | Q(host__isnull=True)).all()
+    return Room.objects.filter(Q(host=user) | Q(host__isnull=True))
+
+
+def room_user_get_data(*, room_user: RoomUser):
+    return {
+        "roomId": room_user.room_id.hex,
+        "user": room_user.user_id,
+        "channelName": room_user.channel_name,
+    }
+
+
+def room_get_joined_users(*, room: Room) -> QuerySet[RoomUser]:
+    return RoomUser.objects.filter(room=room)

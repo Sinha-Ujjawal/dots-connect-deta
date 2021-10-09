@@ -1,37 +1,10 @@
-from typing import List, Optional, Set
-from datetime import datetime
+from typing import List, Optional
 import logging
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-import uuid
-from dataclasses import dataclass, field
-from dataclasses_json import dataclass_json, LetterCase
-from ..models import Room
-from ..selectors import room_get_by_id
-
-
-@dataclass(frozen=True)
-class UserInfo:
-    game_id: uuid.UUID
-    timestamp: datetime = field(default_factory=datetime.now)
-
-
-@dataclass
-class ChannelData:
-    user_infos: Set[UserInfo] = field(default_factory=set)
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class UserIdResponse:
-    game_id: str
-    timestamp: str
-    me: bool
-
-    def __init__(self, user_info: UserInfo, me: bool):
-        self.game_id = user_info.game_id.hex
-        self.timestamp = str(user_info.timestamp)
-        self.me = me
+from ..models import Room, RoomUser
+from ..services import room_join_user, room_leave_user
+from ..selectors import room_get_by_id, room_get_joined_users, room_user_get_data
 
 
 class GameConsumer(AsyncJsonWebsocketConsumer):
@@ -40,20 +13,32 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
 
         self.room_id = route_kwargs["room_id"]
         self.room_group_name = f"chat_{self.room_id}"
-        self.user_info = UserInfo(game_id=uuid.uuid4())
 
         self.room: Optional[Room] = await self.get_room_by_id()
+
         if self.room:  # existing room
-            self.register_user_info()
+            self.room_user = await self.join_room()
             # join the group
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name,
             )
             await self.accept()
-            await self.user_infos_broadcast_signal()
+            await self.broadcast_joined_users_infos()
         else:
             await self.close()
+
+    @database_sync_to_async
+    def join_room(self) -> RoomUser:
+        return room_join_user(
+            room=self.room,
+            user=self.scope["user"],
+            channel_name=self.channel_name,
+        )
+
+    @database_sync_to_async
+    def leave_room(self) -> bool:
+        return room_leave_user(room_user=self.room_user)
 
     @database_sync_to_async
     def get_room_by_id(self) -> Optional[Room]:
@@ -62,43 +47,19 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         except Exception:
             return None
 
-    def update_channel_data(self, channel_data: ChannelData):
-        setattr(self.channel_layer, self.room_group_name, channel_data)
-
-    def get_channel_data(self) -> ChannelData:
-        channel_data = getattr(self.channel_layer, self.room_group_name, None)
-        if channel_data is None:
-            return ChannelData()
-        else:
-            return channel_data
-
-    def register_user_info(self):
-        channel_data = self.get_channel_data()
-        channel_data.user_infos.add(self.user_info)
-        self.update_channel_data(channel_data=channel_data)
-
-    def unregister_user_info(self):
-        channel_data = self.get_channel_data()
-        channel_data.user_infos.discard(self.user_info)
-        self.update_channel_data(channel_data=channel_data)
-
-    def get_user_infos(self) -> List[UserIdResponse]:
-        channel_data = self.get_channel_data()
-        return [
-            UserIdResponse(user_info=user_info, me=user_info == self.user_info)
-            for user_info in sorted(
-                channel_data.user_infos, key=lambda user_info: user_info.timestamp
-            )
-        ]
+    @database_sync_to_async
+    def get_joined_users(self) -> List[RoomUser]:
+        return list(room_get_joined_users(room=self.room))
 
     async def disconnect(self, _close_code):
-        self.unregister_user_info()
         # leave the group
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name,
         )
-        await self.user_infos_broadcast_signal()
+        if self.room:
+            await self.leave_room()
+            await self.broadcast_joined_users_infos()
 
     async def receive_json(self, json_data):
         message = json_data["message"]
@@ -117,17 +78,24 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         # send message to WebSocket
         await self.send_json(content={"message": message})
 
-    async def user_infos_broadcast_signal(self):
-        logging.info("Broadcasting Game Ids")
+    async def broadcast_joined_users_infos(self):
+        logging.info("Broadcasting Joined Users")
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                "type": "game_ids_broadcast_handler",
+                "type": "broadcast_joined_users_infos_handler",
                 "message": None,
             },
         )
 
-    async def game_ids_broadcast_handler(self, _event):
+    async def broadcast_joined_users_infos_handler(self, _event):
+        joined_users = await self.get_joined_users()
         await self.send_json(
-            content=[gameIdRes.to_dict() for gameIdRes in self.get_user_infos()]
+            content=[
+                {
+                    **room_user_get_data(room_user=room_user),
+                    "me": self.room_user == room_user,
+                }
+                for room_user in joined_users
+            ]
         )
