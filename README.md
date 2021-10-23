@@ -31,6 +31,16 @@ redis-server
 python manage.py runserver
 ```
 
+5. Run Celery and Celery Beat to run celery tasks [Optional]. These tasks will remove stale users from the channel.
+
+```console
+celery -A dots_connect_deta.tasks worker -l info --without-gossip --without-mingle --without-heartbeat
+```
+
+```console
+celery -A dots_connect_deta.tasks beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+```
+
 ## Client Usage
 
 1. Open Websocket connection
@@ -68,6 +78,19 @@ chatSocket.send(
   })
 );
 ```
+
+5. Send a special `heartbeat` message at every 10 seconds to ensure that you don't get kicked out. By default the user will be kicked out if he/she is older than `CHANNELS_CONNECTION_MAX_AGE` value. You can set this value in [here](./config/settings/misc.py)
+
+```js
+setInterval(function () {
+  chatSocket.send(JSON.stringify("heartbeat"));
+}, 10000);
+```
+
+## References
+
+1. [HackSoftware/Styleguide-Example](https://github.com/HackSoftware/Styleguide-Example)
+2. [mitmedialab/django-channels-presence](https://github.com/mitmedialab/django-channels-presence)
 
 ## Copyrights & License
 

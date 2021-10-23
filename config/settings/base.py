@@ -36,12 +36,15 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_yasg",
     "channels",
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 LOCAL_APPS = [
     "dots_connect_deta.users",
     "dots_connect_deta.authentication",
     "dots_connect_deta.board",
+    "dots_connect_deta.tasks",
     # local apps here
 ]
 
@@ -174,3 +177,5 @@ from .sessions import *  # noqa
 from .swagger import *  # noqa
 from .channels import *  # noqa
 from .logging import *  # noqa
+from .celery import *  # noqa
+from .misc import *  # noqa

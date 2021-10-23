@@ -28,6 +28,7 @@ class RoomUser(BaseModel):
         null=True,
     )
     channel_name = models.CharField(max_length=255, help_text="Name of the channel")
+    last_seen = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = [("room", "channel_name")]

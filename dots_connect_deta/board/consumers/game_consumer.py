@@ -3,7 +3,7 @@ import logging
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from ..models import Room, RoomUser
-from ..services import room_join_user, room_leave_user
+from ..services import room_join_user, room_leave_user, room_update_last_seen
 from ..selectors import room_get_by_id, room_get_joined_users, room_user_get_data
 
 
@@ -51,6 +51,10 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
     def get_joined_users(self) -> List[RoomUser]:
         return list(room_get_joined_users(room=self.room))
 
+    @database_sync_to_async
+    def update_last_seen(self) -> bool:
+        return room_update_last_seen(room_user=self.room_user)
+
     async def disconnect(self, _close_code):
         # leave the group
         await self.channel_layer.group_discard(
@@ -62,16 +66,19 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.broadcast_joined_users_infos()
 
     async def receive_json(self, json_data):
-        message = json_data["message"]
-        logging.info(f"Received: {message}")
-        # send message to the group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "screem_handler",
-                "message": message,
-            },
-        )
+        if json_data == "heartbeat":
+            await self.update_last_seen()
+        else:
+            message = json_data["message"]
+            logging.info(f"Received: {message}")
+            # send message to the group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "screem_handler",
+                    "message": message,
+                },
+            )
 
     async def screem_handler(self, event):
         message = event["message"]
